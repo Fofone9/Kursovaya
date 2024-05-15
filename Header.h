@@ -6,8 +6,8 @@ class NetermE;
 class NetermT;
 class NetermP;
 class NetermPlus;
-class NetermMult;
-class AutomatStack;
+class NetermMulti;
+class AutomateStack;
 struct Node;
 enum types
 {
@@ -24,10 +24,18 @@ public:
     string valueOfNeterm;
 
 public:
-    Neterm() { valueOfNeterm = ""; }
-    Neterm(string val) : valueOfNeterm(val) {};
-    virtual void performExpression(AutomatStack* magaz) = 0;
-    virtual int analyzeExpression(AutomatStack* magaz) = 0;
+    Neterm() {
+        valueOfNeterm = "";
+        startPosition = 0;
+        type = 0;
+    }
+    explicit Neterm(const string& val) : valueOfNeterm(val) {
+        valueOfNeterm = val;
+        startPosition = 0;
+        type = 0;
+    };
+    virtual void performExpression(AutomateStack* automateStack) = 0;
+    virtual int analyzeExpression(AutomateStack* automateStack) = 0;
     int skipBrackets(int position) {
         int sumOfBrackets = 1;
         position++;
@@ -56,20 +64,16 @@ public:
         valueOfNeterm = "";
         type = E;
     };
-    NetermE(string val, int pos) : Neterm(val) {
+    NetermE(const string& val, int pos) : Neterm(val) {
         type = E;
         startPosition = pos;
     };
-    string getVal() {
-        return valueOfNeterm;
-    }
     int searchOperator() {
         for (int i = 0; i < valueOfNeterm.size(); i++) {
             switch (valueOfNeterm[i])
             {
                 case '+':
                     return i;
-                    break;
                 case '(':
                     i = skipBrackets(i);
                 default:
@@ -78,8 +82,8 @@ public:
         }
         return -1;
     }
-    void performExpression(AutomatStack*)override;
-    int analyzeExpression(AutomatStack*)override;
+    void performExpression(AutomateStack*)override;
+    int analyzeExpression(AutomateStack*)override;
 };
 
 class NetermT :public Neterm {
@@ -88,12 +92,9 @@ public:
         valueOfNeterm = "";
         type = T;
     };
-    NetermT(string val, int pos) : Neterm(val) {
+    NetermT(const string& val, int pos) : Neterm(val) {
         type = T;
         startPosition = pos;
-    };
-    string getVal() {
-        return valueOfNeterm;
     };
     int searchOperator() {
         for (int i = 0; i < valueOfNeterm.size(); i++) {
@@ -101,7 +102,6 @@ public:
             {
                 case '*':
                     return i;
-                    break;
                 case '(':
                     i = skipBrackets(i);
                 default:
@@ -110,8 +110,8 @@ public:
         }
         return -1;
     }
-    void performExpression(AutomatStack* magaz);
-    int analyzeExpression(AutomatStack*);
+    void performExpression(AutomateStack* automateStack) override;
+    int analyzeExpression(AutomateStack*) override;
 };
 
 class NetermP :public Neterm {
@@ -120,35 +120,32 @@ public:
         valueOfNeterm = "";
         type = P;
     };
-    NetermP(string val, int pos) : Neterm(val) {
+    NetermP(const string& val, int pos) : Neterm(val) {
         type = P;
         startPosition = pos;
     };
-    string getVal() {
-        return valueOfNeterm;
-    };
-    void performExpression(AutomatStack* magaz);
-    int analyzeExpression(AutomatStack*);
+    void performExpression(AutomateStack* automateStack) override;
+    int analyzeExpression(AutomateStack*) override;
 };
 class NetermPlus :public Neterm {
 public:
-    NetermPlus(int pos) {
+    explicit NetermPlus(int pos) {
         type = OPERATOR;
         valueOfNeterm = '+';
         startPosition = pos;
     }
-    void performExpression(AutomatStack* magaz);
-    int analyzeExpression(AutomatStack*);
+    void performExpression(AutomateStack*) override;
+    int analyzeExpression(AutomateStack*) override;
 };
-class NetermMult :public Neterm {
+class NetermMulti :public Neterm {
 public:
-    NetermMult(int pos) {
+    explicit NetermMulti(int pos) {
         type = OPERATOR;
         valueOfNeterm = '*';
         startPosition = pos;
     }
-    void performExpression(AutomatStack* magaz);
-    int analyzeExpression(AutomatStack*);
+    void performExpression(AutomateStack*) override;
+    int analyzeExpression(AutomateStack*) override;
 };
 struct Node {
     Neterm* val;
@@ -158,21 +155,21 @@ struct Node {
         next = nullptr;
     }
 };
-class AutomatStack
+class AutomateStack
 {
     Node* root;
 public:
-    AutomatStack() { root = nullptr; }
-    AutomatStack(NetermE* b) {
+    AutomateStack() { root = nullptr; }
+    explicit AutomateStack(NetermE* b) {
         root = new Node(b);
     }
-    AutomatStack(NetermP* b) {
+    explicit AutomateStack(NetermP* b) {
         root = new Node(b);
     }
-    AutomatStack(NetermT* b) {
+    explicit AutomateStack(NetermT* b) {
         root = new Node(b);
     }
-    AutomatStack(NetermPlus* b) {
+    explicit AutomateStack(NetermPlus* b) {
         root = new Node(b);
     }
     void push(NetermE* b) {
@@ -195,7 +192,7 @@ public:
         node->next = root;
         root = node;
     }
-    void push(NetermMult* b) {
+    void push(NetermMulti* b) {
         Node* node = new Node(b);
         node->next = root;
         root = node;
@@ -203,8 +200,7 @@ public:
     Neterm* pop() {
         Node* node = root;
         root = root->next;
-        Neterm* answer = static_cast<Neterm*>(node->val);
-        return answer;
+        return static_cast<Neterm *>(node->val);
     }
     bool empty() {
         return root == nullptr;

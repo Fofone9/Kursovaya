@@ -6,7 +6,7 @@ using namespace std;
 
 class ExpressionParser {
     string expression;
-    AutomatStack magazine;
+    AutomateStack magazine;
     int exceptionPosition;
     string exeptionType;
 public:
@@ -31,7 +31,7 @@ public:
                     return;
                 }
             }
-            magazine = AutomatStack();
+            magazine = AutomateStack();
             perform();}
         else{
             showException();

@@ -1,121 +1,137 @@
 #include "Header.h"
-void NetermE::performExpression(AutomatStack* magaz) {
+void NetermE::performExpression(AutomateStack* automateStack) {
     int indexOfPlus = searchOperator();
     if (indexOfPlus == -1) {
-        string tExpresion = valueOfNeterm;
-        NetermT* t = new NetermT(tExpresion, startPosition);
-        magaz->push(t);
+        string tExpression = valueOfNeterm;
+        NetermT *t;
+        t = new NetermT(tExpression, startPosition);
+        automateStack->push(t);
     }
     else
     {
-        string tExpresion(valueOfNeterm, 0, indexOfPlus);
-        string eExpresion(valueOfNeterm, indexOfPlus + 1, valueOfNeterm.size() - 1);
-        NetermT* t = new NetermT(tExpresion, startPosition+indexOfPlus+1);
-        NetermE* e = new NetermE(eExpresion, startPosition);
-        NetermPlus* plus = new NetermPlus(indexOfPlus+startPosition);
-        magaz->push(plus);
-        magaz->push(t);
-        magaz->push(e);
+        string tExpression(valueOfNeterm, 0, indexOfPlus);
+        string eExpression(valueOfNeterm, indexOfPlus + 1, valueOfNeterm.size() - 1);
+        NetermT *t;
+        t = new NetermT(tExpression, startPosition + indexOfPlus + 1);
+        NetermE *e;
+        e = new NetermE(eExpression, startPosition);
+        NetermPlus *plus;
+        plus = new NetermPlus(indexOfPlus + startPosition);
+        automateStack->push(plus);
+        automateStack->push(t);
+        automateStack->push(e);
 
     }
 }
-int NetermE::analyzeExpression(AutomatStack* magaz) {
+int NetermE::analyzeExpression(AutomateStack* automateStack) {
     int indexOfPlus = searchOperator();
     if (indexOfPlus == -1) {
-        string tExpresion = valueOfNeterm;
-        NetermT* t = new NetermT(tExpresion, startPosition);
-        magaz->push(t);
+        string tExpression = valueOfNeterm;
+        NetermT *t;
+        t = new NetermT(tExpression, startPosition);
+        automateStack->push(t);
     }
     else
     {
-        string tExpresion(valueOfNeterm, 0, indexOfPlus);
-        string eExpresion(valueOfNeterm, indexOfPlus + 1, valueOfNeterm.size() - 1);
-        if (eExpresion.size()==0){
-            return startPosition+indexOfPlus+1;
-        }
-        if(tExpresion.size()==0){
+        string tExpression(valueOfNeterm, 0, indexOfPlus);
+        string eExpression(valueOfNeterm, indexOfPlus + 1, valueOfNeterm.size() - 1);
+        if (eExpression.empty())
+            return startPosition + indexOfPlus + 1;
+
+        if(tExpression.empty()){
             return startPosition;
         }
-        NetermT* t = new NetermT(tExpresion, startPosition);
-        NetermPlus* plus = new NetermPlus(startPosition+indexOfPlus);
-        NetermE* e = new NetermE(eExpresion, startPosition+indexOfPlus+1);
-        magaz->push(e);
-        magaz->push(plus);
-        magaz->push(t);
+        NetermT *t;
+        t = new NetermT(tExpression, startPosition);
+        NetermPlus *plus;
+        plus = new NetermPlus(startPosition + indexOfPlus);
+        NetermE *e;
+        e = new NetermE(eExpression, startPosition + indexOfPlus + 1);
+        automateStack->push(e);
+        automateStack->push(plus);
+        automateStack->push(t);
 
     }
     return -1;
 }
-void NetermT::performExpression(AutomatStack* magaz)
+void NetermT::performExpression(AutomateStack* automateStack)
 {
 
-    int indexOfMult = searchOperator();
-    if (indexOfMult == -1) {
-        string pExpresion = valueOfNeterm;
-        NetermP* p = new NetermP(pExpresion, startPosition);
-        magaz->push(p);
+    int indexOfMulti = searchOperator();
+    if (indexOfMulti == -1) {
+        string pExpression = valueOfNeterm;
+        NetermP *p;
+        p = new NetermP(pExpression, startPosition);
+        automateStack->push(p);
     }
     else
     {
-        string pExpresion(valueOfNeterm, 0, indexOfMult);
-        string tExpresion(valueOfNeterm, indexOfMult + 1, valueOfNeterm.size() - 1);
-        NetermP* p = new NetermP(pExpresion, startPosition);
-        NetermT* t = new NetermT(tExpresion, startPosition+indexOfMult+1);
-        NetermMult* mult = new NetermMult(startPosition+indexOfMult);
-        magaz->push(t);
-        magaz->push(mult);
-        magaz->push(p);
+        string pExpression(valueOfNeterm, 0, indexOfMulti);
+        string tExpression(valueOfNeterm, indexOfMulti + 1, valueOfNeterm.size() - 1);
+        NetermP *p;
+        p = new NetermP(pExpression, startPosition);
+        NetermT *t;
+        t = new NetermT(tExpression, startPosition + indexOfMulti + 1);
+        NetermMulti *multi;
+        multi = new NetermMulti(startPosition + indexOfMulti);
+        automateStack->push(t);
+        automateStack->push(multi);
+        automateStack->push(p);
 
     }
 }
-int NetermT::analyzeExpression(AutomatStack* magaz)
+int NetermT::analyzeExpression(AutomateStack* automateStack)
 {
-    int indexOfMult = searchOperator();
-    if (indexOfMult == -1) {
-        string pExpresion = valueOfNeterm;
-        NetermP* p = new NetermP(pExpresion, startPosition);
-        magaz->push(p);
+    int indexOfMulti = searchOperator();
+    if (indexOfMulti == -1) {
+        string pExpression = valueOfNeterm;
+        NetermP *p;
+        p = new NetermP(pExpression, startPosition);
+        automateStack->push(p);
     }
     else
     {
-        string pExpresion(valueOfNeterm, 0, indexOfMult);
-        string tExpresion(valueOfNeterm, indexOfMult + 1, valueOfNeterm.size() - 1);
-        if (tExpresion.size()==0){
-            return startPosition+indexOfMult+1;
+        string pExpression(valueOfNeterm, 0, indexOfMulti);
+        string tExpression(valueOfNeterm, indexOfMulti + 1, valueOfNeterm.size() - 1);
+        if (tExpression.empty()){
+            return startPosition + indexOfMulti + 1;
         }
-        if(pExpresion.size()==0){
+        if(pExpression.empty()){
             return startPosition;
         }
-        NetermP* p = new NetermP(pExpresion, startPosition);
-        NetermT* t = new NetermT(tExpresion, startPosition+indexOfMult+1);
-        NetermMult* mult = new NetermMult(startPosition+indexOfMult);
-        magaz->push(t);
-        magaz->push(mult);
-        magaz->push(p);
+        NetermP *p;
+        p = new NetermP(pExpression, startPosition);
+        NetermT *t;
+        t = new NetermT(tExpression, startPosition + indexOfMulti + 1);
+        NetermMulti *multi;
+        multi = new NetermMulti(startPosition + indexOfMulti);
+        automateStack->push(t);
+        automateStack->push(multi);
+        automateStack->push(p);
     }
     return -1;
 }
-void NetermP::performExpression(AutomatStack* magaz)
+void NetermP::performExpression(AutomateStack* automateStack)
 {
     cout<<valueOfNeterm;
 }
-int NetermP::analyzeExpression(AutomatStack* magaz)
+int NetermP::analyzeExpression(AutomateStack* automateStack)
 {
     return -1;
 }
-void NetermPlus::performExpression(AutomatStack* magaz)
+void NetermPlus::performExpression(AutomateStack* automateStack)
 {
     cout<<valueOfNeterm;
 }
-int NetermPlus::analyzeExpression(AutomatStack* magaz)
+int NetermPlus::analyzeExpression(AutomateStack* automateStack)
 {
     return -1;
 }
-void NetermMult::performExpression(AutomatStack* magaz)
+void NetermMulti::performExpression(AutomateStack* automateStack)
 {
     cout<<valueOfNeterm;
 }
-int NetermMult::analyzeExpression(AutomatStack* magaz)
+int NetermMulti::analyzeExpression(AutomateStack* automateStack)
 {
     return -1;
 }
