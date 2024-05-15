@@ -12,15 +12,14 @@ void NetermE::performExpression(AutomateStack* automateStack) {
         string tExpression(valueOfNeterm, 0, indexOfPlus);
         string eExpression(valueOfNeterm, indexOfPlus + 1, valueOfNeterm.size() - 1);
         NetermT *t;
-        t = new NetermT(tExpression, startPosition + indexOfPlus + 1);
+        t = new NetermT(tExpression, startPosition);
         NetermE *e;
-        e = new NetermE(eExpression, startPosition);
+        e = new NetermE(eExpression, startPosition + indexOfPlus + 1);
         NetermPlus *plus;
         plus = new NetermPlus(indexOfPlus + startPosition);
         automateStack->push(plus);
-        automateStack->push(t);
         automateStack->push(e);
-
+        automateStack->push(t);
     }
 }
 int NetermE::analyzeExpression(AutomateStack* automateStack) {
@@ -74,9 +73,10 @@ void NetermT::performExpression(AutomateStack* automateStack)
         t = new NetermT(tExpression, startPosition + indexOfMulti + 1);
         NetermMulti *multi;
         multi = new NetermMulti(startPosition + indexOfMulti);
-        automateStack->push(t);
         automateStack->push(multi);
+        automateStack->push(t);
         automateStack->push(p);
+
 
     }
 }
@@ -113,10 +113,27 @@ int NetermT::analyzeExpression(AutomateStack* automateStack)
 }
 void NetermP::performExpression(AutomateStack* automateStack)
 {
-    cout<<valueOfNeterm;
+    if (valueOfNeterm[0] == '(' ){
+        string eExpression(valueOfNeterm, 1, valueOfNeterm.size()-2);
+        NetermE* e;
+        e = new NetermE(eExpression, startPosition+1);
+        automateStack->push(e);
+    }
+    else {
+        cout << valueOfNeterm;
+    }
 }
 int NetermP::analyzeExpression(AutomateStack* automateStack)
 {
+    if (valueOfNeterm[0] == '(' ){
+        string eExpression(valueOfNeterm, 1, valueOfNeterm.size()-2);
+        NetermE* e;
+        if (eExpression.empty()){
+            return startPosition+1;
+        }
+        e = new NetermE(eExpression, startPosition+1);
+        automateStack->push(e);
+    }
     return -1;
 }
 void NetermPlus::performExpression(AutomateStack* automateStack)

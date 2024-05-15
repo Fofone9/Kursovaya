@@ -1,4 +1,5 @@
 #include<iostream>
+#include<fstream>
 #include<stack>
 #include "Header.h"
 //#include "NetermExtension.cpp"
@@ -27,6 +28,15 @@ public:
                 Neterm* currentNeterm = magazine.pop();
                 exceptionPosition = currentNeterm->analyzeExpression(&magazine);
                 if (exceptionPosition != -1){
+                    switch (currentNeterm->type) {
+                        case 0:
+
+                        case 1:
+                            exeptionType = "unexpected operator, needed argument ";
+                            break;
+                        case 2:
+                            exeptionType = "unexpected ')', needed argument";
+                    }
                     showException();
                     return;
                 }
@@ -48,7 +58,7 @@ public:
                 case ')':
                     if (brackets.empty()){
 
-                        exeptionType = "Обнаружена лишняя закрывающая скобка";
+                        exeptionType = "unexpected symbol ')'";
                         return i;
                     }
                     brackets.pop();
@@ -58,8 +68,7 @@ public:
             }
         }
         if (!brackets.empty()){
-
-            exeptionType = "Обнаружена лишняя открывающаяся скобка";
+            exeptionType = "unexpected symbol '('";
             return brackets.top();
         }
         return -1;
@@ -74,22 +83,31 @@ public:
 
     }
     void perform() {
-        NetermE* S = new NetermE(expression,0);
+        cout<<expression<<endl;
+        NetermE *S;
+        S = new NetermE(expression, 0);
         magazine.push(S);
         while (!magazine.empty()) {
             Neterm* currentNeterm = magazine.pop();
             currentNeterm->performExpression(&magazine);
         }
+        cout<<endl;
     }
 
 };
 
 int main()
 {
-    string primer = "1*a+b*c+2";
-    ExpressionParser ep(primer);
-    cout<<primer<<endl<<"start analyze"<<endl;
-    ep.analyze();
+    cout << "start analyze" << endl;
+    ifstream in;
+    in.open("../samples.txt");
+    string primer;
+    while(getline(in, primer)) {
+        ExpressionParser ep(primer);
+        ep.analyze();
+        cout<<endl;
+    }
     cout <<endl<< "end"<<endl;
+    in.close();
     return 0;
 }

@@ -8,4 +8,6 @@ include_directories(.)
 add_executable(Kursovaya
         main.cpp
         Header.h
-        NetermExtension.cpp)
+        NetermExtension.cpp
+        samples.txt
+    )
