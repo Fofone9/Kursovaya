@@ -21,7 +21,8 @@ public:
     void analyze(){
         exceptionPosition = bracketsAnalyze();
         if (exceptionPosition == -1){
-            NetermE* S = new NetermE(expression, 0);
+            NetermE *S;
+            S = new NetermE(expression, 0);
             magazine.push(S);
             exceptionPosition = 0;
             while (!magazine.empty()) {
@@ -29,13 +30,20 @@ public:
                 exceptionPosition = currentNeterm->analyzeExpression(&magazine);
                 if (exceptionPosition != -1){
                     switch (currentNeterm->type) {
-                        case 0:
-
-                        case 1:
-                            exeptionType = "unexpected operator, needed argument ";
+                        case UP:
+                            exeptionType = "unexpected operator +, needed argument";
                             break;
-                        case 2:
-                            exeptionType = "unexpected ')', needed argument";
+                        case UM:
+                            exeptionType = "unexpected operator *, needed argument ";
+                            break;
+                        case EB:
+                            exeptionType = "unexpected bracket, needed argument";
+                            break;
+                        case NONOPERB:
+                            exeptionType = "need operator before brackets";
+                            break;
+                        case NONOPERA:
+                            exeptionType = "need operator after brackets";
                     }
                     showException();
                     return;
@@ -74,6 +82,7 @@ public:
         return -1;
     }
     void showException(){
+        if (exceptionPosition>= expression.size())exeptionType = "unexpected end of operation, need argument";
         cout<<expression<<endl;
         for (int i = 0; i < exceptionPosition; i++){
             cout<<'-';

@@ -34,10 +34,13 @@ int NetermE::analyzeExpression(AutomateStack* automateStack) {
     {
         string tExpression(valueOfNeterm, 0, indexOfPlus);
         string eExpression(valueOfNeterm, indexOfPlus + 1, valueOfNeterm.size() - 1);
-        if (eExpression.empty())
+        if (eExpression.empty()) {
+            type = UP;
             return startPosition + indexOfPlus + 1;
+        }
 
         if(tExpression.empty()){
+            type = UP;
             return startPosition;
         }
         NetermT *t;
@@ -94,9 +97,11 @@ int NetermT::analyzeExpression(AutomateStack* automateStack)
         string pExpression(valueOfNeterm, 0, indexOfMulti);
         string tExpression(valueOfNeterm, indexOfMulti + 1, valueOfNeterm.size() - 1);
         if (tExpression.empty()){
+            type = UP;
             return startPosition + indexOfMulti + 1;
         }
         if(pExpression.empty()){
+            type = UM;
             return startPosition;
         }
         NetermP *p;
@@ -125,14 +130,38 @@ void NetermP::performExpression(AutomateStack* automateStack)
 }
 int NetermP::analyzeExpression(AutomateStack* automateStack)
 {
-    if (valueOfNeterm[0] == '(' ){
-        string eExpression(valueOfNeterm, 1, valueOfNeterm.size()-2);
-        NetermE* e;
-        if (eExpression.empty()){
-            return startPosition+1;
+    int size = valueOfNeterm.size();
+    bool hasBrackets = searchBrackets();
+
+    if (hasBrackets) {
+        if (valueOfNeterm[0] == '(' and valueOfNeterm[size - 1] == ')') {
+            string eExpression(valueOfNeterm, 1, size - 2);
+            if (eExpression.empty()) {
+                type = EB;
+                return startPosition + 1;
+            }
+            NetermE *e;
+            e = new NetermE(eExpression, startPosition + 1);
+            automateStack->push(e);
+        } else if (valueOfNeterm[0] == '(') {
+            int i = 0;
+            for(; i<size;i++){
+                if (valueOfNeterm[i]==')'){
+                    break;
+                }
+            }
+            type = NONOPERA;
+            return startPosition+i;
+        } else {
+            int i = 0;
+            for(; i<size;i++){
+                if (valueOfNeterm[i]=='('){
+                    break;
+                }
+            }
+            type = NONOPERB;
+            return startPosition+i;
         }
-        e = new NetermE(eExpression, startPosition+1);
-        automateStack->push(e);
     }
     return -1;
 }

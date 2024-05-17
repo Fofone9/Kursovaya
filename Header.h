@@ -9,12 +9,15 @@ class NetermPlus;
 class NetermMulti;
 class AutomateStack;
 struct Node;
-enum types
+enum errorTypes
 {
-    E,
-    T,
-    P,
-    OPERATOR
+    OK, //все норм
+    UB, //лишняя скобка
+    UP, //лишний плюс
+    UM, //лишнее умножение
+    NONOPERB, //нужен опрератор перед скобками
+    NONOPERA, //нужен опрератор после скобок
+    EB //пустые скобки
 };
 class Neterm
 {
@@ -27,12 +30,12 @@ public:
     Neterm() {
         valueOfNeterm = "";
         startPosition = 0;
-        type = 0;
+        type = OK;
     }
     explicit Neterm(const string& val) : valueOfNeterm(val) {
         valueOfNeterm = val;
         startPosition = 0;
-        type = 0;
+        type = OK;
     };
     virtual void performExpression(AutomateStack* automateStack) = 0;
     virtual int analyzeExpression(AutomateStack* automateStack) = 0;
@@ -63,10 +66,10 @@ class NetermE :public Neterm {
 public:
     NetermE() {
         valueOfNeterm = "";
-        type = E;
+        type = OK;
     };
     NetermE(const string& val, int pos) : Neterm(val) {
-        type = E;
+        type = OK;
         startPosition = pos;
     };
     int searchOperator() {
@@ -91,10 +94,10 @@ class NetermT :public Neterm {
 public:
     NetermT() {
         valueOfNeterm = "";
-        type = T;
+        type = OK;
     };
     NetermT(const string& val, int pos) : Neterm(val) {
-        type = T;
+        type = OK;
         startPosition = pos;
     };
     int searchOperator() {
@@ -119,19 +122,25 @@ class NetermP :public Neterm {
 public:
     NetermP() {
         valueOfNeterm = "";
-        type = P;
+        type = OK;
     };
     NetermP(const string& val, int pos) : Neterm(val) {
-        type = P;
+        type = OK;
         startPosition = pos;
     };
     void performExpression(AutomateStack* automateStack) override;
     int analyzeExpression(AutomateStack*) override;
+    bool searchBrackets(){
+        for (auto character: valueOfNeterm) {
+            if (character == '(') return true;
+        }
+        return false;
+    }
 };
 class NetermPlus :public Neterm {
 public:
     explicit NetermPlus(int pos) {
-        type = OPERATOR;
+        type = OK;
         valueOfNeterm = '+';
         startPosition = pos;
     }
@@ -141,7 +150,7 @@ public:
 class NetermMulti :public Neterm {
 public:
     explicit NetermMulti(int pos) {
-        type = OPERATOR;
+        type = OK;
         valueOfNeterm = '*';
         startPosition = pos;
     }
