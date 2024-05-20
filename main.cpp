@@ -1,6 +1,7 @@
 #include<iostream>
 #include<fstream>
 #include<stack>
+#include<vector>
 #include "Header.h"
 using namespace std;
 
@@ -98,14 +99,72 @@ public:
     }
     void perform() {
         cout<<expression<<endl;
-        NetermE *S;
-        S = new NetermE(expression, 0);
-        magazine.push(S);
-        while (!magazine.empty()) {
-            Neterm* currentNeterm = magazine.pop();
-            currentNeterm->performExpression(&magazine);
+        cout<<"your expression is OK, want to perform it(must considered only numbers)[1:yes, 0:no]"<<endl;
+        bool agree;
+        cin>>agree;
+        if (agree) {
+            vector<string> expr;
+            stack<double> values;
+            NetermE *S;
+            S = new NetermE(expression, 0);
+            magazine.push(S);
+            while (!magazine.empty()) {
+                Neterm *currentNeterm = magazine.pop();
+                string elementOfExpression = currentNeterm->performExpression(&magazine);
+                if (!elementOfExpression.empty()) {
+                    expr.push_back(elementOfExpression);
+                }
+            }
+//            for (string num: expr) {
+//                cout << num << ' ';
+//            }
+            cout << endl;
+            for (string elem: expr) {
+                if (elem == "+") {
+                    double second = values.top();
+                    values.pop();
+                    double first = values.top();
+                    values.pop();
+                    double num = first + second;
+                    values.push(num);
+                } else if (elem == "-") {
+                    double second = values.top();
+                    values.pop();
+                    double first = values.top();
+                    values.pop();
+                    double num = first - second;
+                    values.push(num);
+                } else if (elem == "*") {
+                    double second = values.top();
+                    values.pop();
+                    double first = values.top();
+                    values.pop();
+                    double num = first * second;
+                    values.push(num);
+                } else if (elem == "/") {
+                    double second = values.top();
+                    values.pop();
+                    double first = values.top();
+                    values.pop();
+                    double num = first / second;
+                    values.push(num);
+                } else {
+                    double number = 0;
+                    for (char num: elem) {
+                        if (num == '-')
+                            number *= -1;
+                        else {
+                            number *= 10;
+                            number += num - 48;
+                        }
+                    }
+                    values.push(number);
+                }
+            }
+            cout <<"answer = "<< values.top();
+            values.pop();
+            cout << endl;
         }
-        cout<<endl;
     }
 
 };

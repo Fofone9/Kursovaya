@@ -1,6 +1,13 @@
 #include "Header.h"
 int NetermE::analyzeExpression(AutomateStack* automateStack) {
-    int indexOfOperator = searchOperator();
+    int indexOfOperator;
+    if (valueOfNeterm[0] == '-' and mayBeMinus) {
+        indexOfOperator = searchOperator(1);
+    }
+    else{
+        indexOfOperator = searchOperator(0);
+    }
+
     if (indexOfOperator == -1) {
         string tExpression = valueOfNeterm;
         NetermT *t;
@@ -24,9 +31,15 @@ int NetermE::analyzeExpression(AutomateStack* automateStack) {
         if(tExpression.empty()){
             if (isPlus){
                 type = UP;
+
             }
             else{
+                if (mayBeMinus){
+                    NetermT *t;
+                    t = new NetermT(valueOfNeterm, startPosition);
+                }
                 type = US;
+
             }
             return startPosition;
         }
@@ -40,7 +53,7 @@ int NetermE::analyzeExpression(AutomateStack* automateStack) {
             oper = new NetermSubtraction(startPosition + indexOfOperator);
         }
         NetermE *e;
-        e = new NetermE(eExpression, startPosition + indexOfOperator + 1);
+        e = new NetermE(eExpression, startPosition + indexOfOperator + 1, false);
         automateStack->push(e);
         automateStack->push(oper);
         automateStack->push(t);

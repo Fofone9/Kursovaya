@@ -41,7 +41,7 @@ public:
         startPosition = 0;
         type = OK;
     };
-    virtual void performExpression(AutomateStack* automateStack) = 0;
+    virtual string performExpression(AutomateStack* automateStack) = 0;
     virtual int analyzeExpression(AutomateStack* automateStack) = 0;
     int skipBrackets(int position) {
         int sumOfBrackets = 1;
@@ -68,16 +68,19 @@ public:
 };
 class NetermE :public Neterm {
 public:
+    bool mayBeMinus;
     NetermE() {
         valueOfNeterm = "";
         type = OK;
+        mayBeMinus = true;
     };
-    NetermE(const string& val, int pos) : Neterm(val) {
+    NetermE(const string& val, int pos, bool mbm = true) : Neterm(val) {
         type = OK;
         startPosition = pos;
+        mayBeMinus = mbm;
     };
-    int searchOperator() {
-        for (int i = 0; i < valueOfNeterm.size(); i++) {
+    int searchOperator(int startPosition = 0) {
+        for (int i = startPosition; i < valueOfNeterm.size(); i++) {
             switch (valueOfNeterm[i])
             {
                 case '+':
@@ -91,7 +94,7 @@ public:
         }
         return -1;
     }
-    void performExpression(AutomateStack*)override;
+    string performExpression(AutomateStack*)override;
     int analyzeExpression(AutomateStack*)override;
 };
 
@@ -105,8 +108,8 @@ public:
         type = OK;
         startPosition = pos;
     };
-    int searchOperator() {
-        for (int i = 0; i < valueOfNeterm.size(); i++) {
+    int searchOperator(int startPosition = 0) {
+        for (int i = startPosition; i < valueOfNeterm.size(); i++) {
             switch (valueOfNeterm[i])
             {
                 case '*':
@@ -120,7 +123,7 @@ public:
         }
         return -1;
     }
-    void performExpression(AutomateStack* automateStack) override;
+    string performExpression(AutomateStack* automateStack) override;
     int analyzeExpression(AutomateStack*) override;
 };
 
@@ -134,7 +137,7 @@ public:
         type = OK;
         startPosition = pos;
     };
-    void performExpression(AutomateStack* automateStack) override;
+    string performExpression(AutomateStack* automateStack) override;
     int analyzeExpression(AutomateStack*) override;
     bool searchBrackets(){
         for (auto character: valueOfNeterm) {
@@ -149,7 +152,7 @@ public:
         type = OK;
         startPosition = pos;
     }
-    void performExpression(AutomateStack*) override;
+    string performExpression(AutomateStack*) override;
     int analyzeExpression(AutomateStack*) override;
 };
 class NetermPlus :public NetermOperator {
