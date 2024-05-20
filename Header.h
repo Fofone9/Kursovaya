@@ -7,6 +7,7 @@ class NetermT;
 class NetermP;
 class NetermPlus;
 class NetermMulti;
+class NetermOperator;
 class AutomateStack;
 struct Node;
 enum errorTypes
@@ -17,7 +18,10 @@ enum errorTypes
     UM, //лишнее умножение
     NONOPERB, //нужен опрератор перед скобками
     NONOPERA, //нужен опрератор после скобок
-    EB //пустые скобки
+    EB, //пустые скобки
+    UD, //лишнее деление
+    US, //лишнее вычитание
+    UO, //лишний оператор после деления или умножения
 };
 class Neterm
 {
@@ -77,6 +81,7 @@ public:
             switch (valueOfNeterm[i])
             {
                 case '+':
+                case '-':
                     return i;
                 case '(':
                     i = skipBrackets(i);
@@ -105,6 +110,7 @@ public:
             switch (valueOfNeterm[i])
             {
                 case '*':
+                case '/':
                     return i;
                 case '(':
                     i = skipBrackets(i);
@@ -137,25 +143,38 @@ public:
         return false;
     }
 };
-class NetermPlus :public Neterm {
+class NetermOperator: public Neterm{
 public:
-    explicit NetermPlus(int pos) {
+    explicit NetermOperator(int pos) {
         type = OK;
-        valueOfNeterm = '+';
         startPosition = pos;
     }
     void performExpression(AutomateStack*) override;
     int analyzeExpression(AutomateStack*) override;
 };
-class NetermMulti :public Neterm {
+class NetermPlus :public NetermOperator {
 public:
-    explicit NetermMulti(int pos) {
-        type = OK;
+    explicit NetermPlus (int pos): NetermOperator(pos){
+    valueOfNeterm = '+';
+}
+};
+class NetermMulti :public NetermOperator {
+public:
+    explicit NetermMulti(int pos): NetermOperator(pos) {
         valueOfNeterm = '*';
-        startPosition = pos;
     }
-    void performExpression(AutomateStack*) override;
-    int analyzeExpression(AutomateStack*) override;
+};
+class NetermDivision: public NetermOperator{
+public:
+    explicit NetermDivision(int pos): NetermOperator(pos) {
+        valueOfNeterm = '/';
+    }
+};
+class NetermSubtraction: public NetermOperator{
+public:
+    explicit NetermSubtraction(int pos): NetermOperator(pos) {
+        valueOfNeterm = '-';
+    }
 };
 struct Node {
     Neterm* val;
@@ -197,12 +216,8 @@ public:
         node->next = root;
         root = node;
     }
-    void push(NetermPlus* b) {
-        Node* node = new Node(b);
-        node->next = root;
-        root = node;
-    }
-    void push(NetermMulti* b) {
+
+    void push(NetermOperator* b) {
         Node* node = new Node(b);
         node->next = root;
         root = node;

@@ -2,7 +2,6 @@
 #include<fstream>
 #include<stack>
 #include "Header.h"
-//#include "NetermExtension.cpp"
 using namespace std;
 
 class ExpressionParser {
@@ -44,6 +43,12 @@ public:
                             break;
                         case NONOPERA:
                             exeptionType = "need operator after brackets";
+                        case UD:
+                            exeptionType = "unexpected operator /, needed argument ";
+                        case US:
+                            exeptionType = "unexpected operator -, needed argument ";
+                        case UO:
+                            exeptionType = "unexpected sequence of operators, must be argument";
                     }
                     showException();
                     return;
